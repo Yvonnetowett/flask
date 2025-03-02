@@ -1,0 +1,37 @@
+{% include 'base.html' %}
+
+<div class="container mx-auto p-4">  <h1 class="text-3xl font-bold text-center mt-8 mb-4">Add Product</h1>
+    <form action="{{url_for('addproducts')}}" method="POST" class="w-full max-w-md mx-auto mt-8" enctype="multipart/form-data">
+        <div class="mb-4">
+            <input type="text" name="pname" placeholder="Product Name" required 
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+            <input type="text" name="pcategory" placeholder="Product Category" required 
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+            <textarea name="pdes" placeholder="Product Description" required
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="mb-4">
+            <input type="text" name="pprice" placeholder="Product Price" required
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+            <input type="file" name="pimage" required accept='image/*'
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+            <input type="submit" value="Add Product"
+                   class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+    </form>
+
+    <h1 class="text-3xl font-bold text-center mt-8 mb-4">Delete Product</h1>
+    <form action="{{url_for('deleteproduct')}}" method="post" class="w-full max-w-md mx-auto mt-8">  <div class="mb-4">  <input type="text" placeholder="Name of the product to be deleted" name="pname"
+                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">  </div>
+        <div>  <input type="submit" value="Delete Product"
+                   class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-red-500">  </div>
+    </form>
+</div>

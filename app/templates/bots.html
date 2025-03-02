@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Product Search</h1>
+    <input id="product-name" type="text" placeholder="Enter product name">
+    <button id="search-btn">Search</button>
+    <div id="product-result"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#search-btn').click(function() {
+                const productName = document.getElementById("product-name").value
+                if (productName) {
+                    $.ajax({
+                        type: 'GET',
+                        url: `/products/${productName}`,
+                        success: function(data) {
+                            console.log(data);
+                            const productresult = document.getElementById("product-result");
+                            productresult.innerHTML=`
+                            <h2>Product Found:</h2>
+                            
+                            <p>Name: ${data.name}</p>
+                            <p>Price: ${data.price}</p>
+                            <p>Description: ${data.description}</p>
+                        `;}
+                            ,
+                        error: function(xhr, status, error) {
+                            $('#product-result').html(`
+                                <h2>Product Not Found</h2>
+                                <p>${xhr.responseText}</p>
+                            `);
+                        }
+                    });
+                } else {
+                    alert('Please enter a product name');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

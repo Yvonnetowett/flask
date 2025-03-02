@@ -1,0 +1,144 @@
+{%include 'base.html'%}
+<body class="bg-gray-100">
+
+    <h1 class="text-3xl font-bold text-center mt-8 mb-4">{{ message }}</h1>
+    
+    <form class="search-form w-full max-w-md mx-auto mb-8" action="{{ url_for('index') }}" method="get">
+        <div class="flex">
+            <input type="text" name="query" placeholder="Search products..." class="w-full px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-md focus:outline-none focus:ring-2 focus:ring-blue-500">Search</button>
+        </div>
+    </form>
+
+    <div class="product-list w-full max-w-6xl mx-auto">
+        <h1>Welcome to the Product Recommendation System!</h1>
+        <form action="/index" method="POST">
+            <label for="product_name">Select a Product:</label>
+            
+            <select name="product_name" id="product_name">
+                {% for p in all_products_list %}
+                <option value="{{p.name}}">{{p.name}}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit">Get Recommendations</button>
+        </form>
+        <h2 class="text-2xl font-bold mb-4">Product List</h2>
+        <div class="product-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for product in products %}
+            <div class="product-card bg-white rounded-lg shadow-md p-4">
+                <div class="imgdiv mb-4" >
+                    <img src="{{url_for('static',filename=product.name+'.jpg')}}" alt="{{ product.name }}" class="w-full h-48 object-cover rounded-t-lg" id="myimages"/>
+                </div>
+                <div class="namedesdiv">
+                    <strong class="block text-lg font-medium mb-2">{{ product.name }}</strong>
+                    <p class="text-gray-700 mb-2">{{ product.description }}</p>
+
+                    <div class="flex items-center justify-between">
+                        <p class="price text-lg font-bold text-gray-800">Ksh. {{product.price}}</p>
+                        <button class="bg-gray-200 hover:bg-gray-300 rounded-md p-2 like-btn" data-product-id="{{ product.id }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+        </div>
+                    
+                </div>
+                <div class="submitdiv mt-4">
+                    <form action="/add_to_cart" method="post" class="w-full">
+                        <input type="hidden" name="productname" value="{{ product.name }}" />
+                        <button type="submit" class="addToCart w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">Add to Cart</button>
+                    </form>
+                </div>
+            </div>
+           
+            {% else %}
+            <p class="text-center text-gray-500">No products found.</p>
+            {% endfor %}
+            
+            
+                {% for product in products1 %}
+                <div class="product-card bg-white rounded-lg shadow-md p-4">
+                    <div class="imgdiv mb-4" >
+                        <img src="{{url_for('static',filename=product.name+'.jpg')}}" alt="{{ product.name }}" class="w-full h-48 object-cover rounded-t-lg" id="myimages"/>
+                    </div>
+                    <div class="namedesdiv">
+                        <strong class="block text-lg font-medium mb-2">{{ product.name }}</strong>
+                        <p class="text-gray-700 mb-2">{{ product.description }}</p>
+                        <div class="flex items-center justify-between">
+                            <p class="price text-lg font-bold text-gray-800">Ksh. {{product.price}}</p>
+                            <button class="bg-gray-200 hover:bg-gray-300 rounded-md p-2 like-btn" data-product-id="{{ product.id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+            </div>
+                    </div>
+                    <div class="submitdiv mt-4">
+                        <form action="/add_to_cart" method="post" class="w-full">
+                            <input type="hidden" name="productname" value="{{ product.name }}" />
+                            <button type="submit" class="addToCart w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+                {%if product_name%}
+                
+                <div class="product-card bg-white rounded-lg shadow-md p-4">
+                    <div class="imgdiv mb-4" >
+                        <img src="{{url_for('static',filename=product_name.name+'.jpg')}}" alt="{{ product_name.name }}" class="w-full h-48 object-cover rounded-t-lg" id="myimages"/>
+                    </div>
+                    <div class="namedesdiv">
+                        <strong class="block text-lg font-medium mb-2">{{ product_name.name }}</strong>
+                        <p class="text-gray-700 mb-2">{{ product_name.description }}</p>
+                        <div class="flex items-center justify-between">
+                            <p class="price text-lg font-bold text-gray-800">Ksh. {{product_name.price}}</p>
+                            <button class="bg-gray-200 hover:bg-gray-300 rounded-md p-2 like-btn" data-product-id="{{ product_name.id }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+            </div>
+                    </div>
+                    <div class="submitdiv mt-4">
+                        <form action="/add_to_cart" method="post" class="w-full">
+                            <input type="hidden" name="productname" value="{{ product_name.name }}" />
+                            <button type="submit" class="addToCart w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">Add to Cart</button>
+                        </form>
+                    </div>
+                </div>
+            {%endif%}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.like-btn').click(function() {
+                var productId = $(this).data('product-id');
+                var button = $(this); // Store the button element
+
+                $.ajax({
+                    url: '/index', // Your Flask route
+                    type: 'POST',
+                    data: { product_id: productId, action: 'like' },
+                    success: function(response) {
+                      
+                        var msg1 = document.getElementById("msg")
+                        msg1.innerText = response.msg
+                        button.toggleClass('bg-gray-200 bg-red-400'); // Toggle button color
+                        if (button.hasClass('bg-red-400')) {
+                            button.find('svg').attr('fill','red');
+                        }else{
+                            button.find('svg').attr('fill','currentColor');
+                        }
+                    },
+                    error: function(error) {
+                        console.error(error);
+                    }
+                });
+            });
+        });
+</script>
+
+</body>
