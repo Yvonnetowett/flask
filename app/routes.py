@@ -7,6 +7,7 @@ from app.models import Carted, Liked, User,Cart_Items,Products
 import sqlalchemy as sa
 from sqlalchemy import text
 import pandas as pd
+import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from flask_login import LoginManager, current_user, login_user,logout_user,login_required
@@ -55,7 +56,6 @@ def index():
         filtered_products = products 
         other_products = []
         combined_products = filtered_products + other_products
-        # Remove duplicates by using a dictionary where keys are product IDs
         unique_combined_products = list({product.id: product for product in combined_products}.values())
         filtered_products = unique_combined_products
 
@@ -67,34 +67,26 @@ def index():
 
             selected_product_id = showm
             
-            # Fetch the selected product from the database
             selected_product = Products.query.get(selected_product_id)
             
-            # Fetch all products from the database for similarity computation
             all_products = Products.query.all()
             
-            # Create a list of descriptions for TF-IDF vectorization
             descriptions = [product.description for product in all_products]
             
-            # Vectorize the descriptions using TF-IDF
             vectorizer = TfidfVectorizer(stop_words='english')
             tfidf_matrix = vectorizer.fit_transform(descriptions)
             
-            # Calculate cosine similarity between the selected product and all other products
             selected_product_index = all_products.index(selected_product)
             cosine_sim = cosine_similarity(tfidf_matrix[selected_product_index], tfidf_matrix)
             
-            # Sort the products based on similarity scores
             similarity_scores = list(enumerate(cosine_sim[0]))
             similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
             
-            # Get top 3 recommended products (excluding the selected product itself)
             top_similar_products = []
-            for i in range(1, len(products)):  # Skipping the first product as it is the selected one
+            for i in range(1, len(products)): 
                 product_idx = similarity_scores[i][0]
                 top_similar_products.append(all_products[product_idx])
             
-            # Get other products (those not recommended)
             recommended_ids = [product.id for product in top_similar_products]
             other_products = [product for product in all_products if product.id != selected_product.id and product.id not in recommended_ids]
             products1 = other_products
@@ -388,7 +380,58 @@ def resetpwd():
     else:
         return render_template('resetpwd.html')
     
-
+    
+    
 @app.route('/test',methods=['POST','GET'])
 def test():
     return render_template('test.html',title="Register")
+
+API_KEY = '2fa93bbefd6d0795888ddc0a3786c553bba77ecc'  # Replace with your actual API key
+API_URL = "https://lipia-api.kreativelabske.com/api/request/stk"
+
+@app.route("/payment", methods=["GET", "POST"])
+def payment():
+    message = ""
+    query = sa.select(Cart_Items).where(Cart_Items.user_id == current_user.id).order_by(Cart_Items.id.desc())
+    my_items = db.session.scalars(query).all()
+    total = 0
+    msg = ""
+    for item in my_items:
+        total=total+(item.price*item.quantity)
+    if request.method == "POST":
+        #phone = request.form.get("phone")
+        #amount = request.form.get("amount")
+        phone = request.form.get("phone_number")
+        amount = request.form.get("amount")
+        
+
+        if phone and amount:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {API_KEY}"
+            }
+            payload = {"phone": phone, "amount": amount}
+            try:
+                response = requests.post(API_URL, headers=headers, json=payload)
+                response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+                data = response.json()
+
+                if data.get("message") == "callback received successfully":
+                    message = "Payment request sent successfully. Check your phone to complete the payment."
+                    #message += f" Reference: {data['data'].get('reference')}, CheckoutRequestID: {data['data'].get('CheckoutRequestID')}"
+                    return jsonify({'message': message})
+                else:
+                    message = f"Error: {data.get('message')}"
+                    return jsonify({'message': message})
+            except requests.exceptions.RequestException as e:
+                message = f"Error: {e}"
+                return jsonify({'message': message})
+            except ValueError: # handles json decoding errors.
+                message = "Error: Invalid response from server"
+                return jsonify({'message': message})
+
+        else:
+            message = "Please enter phone and amount."
+            return jsonify({'message': message})
+
+    return render_template("payment.html", message=message,title='Payment')

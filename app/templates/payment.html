@@ -1,0 +1,61 @@
+{% include 'base.html' %}
+
+<main class="flex justify-center items-center h-screen bg-gray-100 font-sans">
+    <div id="paymentForm" class="bg-white p-8 rounded shadow-md text-center w-96">
+        <h2 class="text-2xl font-bold mb-6">M-Pesa Payment</h2>
+        <form id="paymentFormAjax" class="space-y-4">
+            <div>
+                <label for="phone" class="block text-left font-semibold text-gray-700">Phone Number</label>
+                <input type="text" name="phone" id="phone" placeholder="07XXXXXXXX" class="border p-2 rounded w-full mt-1">
+            </div>
+            <div>
+                <label for="amount" class="block text-left font-semibold text-gray-700">Amount</label>
+                <input type="number" name="amount" id="amount" placeholder="Amount e.g 1,2..." class="border p-2 rounded w-full mt-1">
+            </div>
+            <button type="button" id="payButtonAjax" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded w-full">Pay</button>
+        </form>
+        <p id="message" class="mt-4 font-semibold">{{ message }}</p>
+    </div>
+    
+</main>
+<script>
+    document.getElementById('payButtonAjax').addEventListener('click', function() {
+        const phone = document.getElementById('phone').value;
+        const amount = document.getElementById('amount').value;
+        const messageElement = document.getElementById('message');
+
+        if (!phone || !amount) {
+            messageElement.textContent = "Please enter phone and amount.";
+            return;
+        }
+
+        messageElement.textContent = "Processing...";
+        fetch('/payment', {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    phone_number: phone,
+                    amount: amount,
+                }),
+        
+            
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Log the response for debugging
+            if (data.message === "callback received successfully") {
+                messageElement.textContent = "Payment request sent successfully. Check your phone to complete the payment.";
+                messageElement.textContent += ` Reference: ${data.data.reference}, CheckoutRequestID: ${data.data.CheckoutRequestID}`;
+            } else {
+                messageElement.textContent = `Error: ${data.message}`;
+            }
+        })
+        .catch(error => {
+            console.error('Payment error:', error);
+            messageElement.textContent = `Error: ${error.message}`;
+        });
+    });
+</script>
